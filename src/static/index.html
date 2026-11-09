@@ -1,0 +1,271 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <meta
+      name="description"
+      content="OpsPilot: evidence-led employee offboarding with human approval and an auditable workflow."
+    />
+    <title>OpsPilot · Operations workspace</title>
+    <link rel="stylesheet" href="/styles.css" />
+    <script src="/app.js" defer></script>
+  </head>
+  <body>
+    <div class="app-shell">
+      <aside class="sidebar">
+        <a class="brand" href="/" aria-label="OpsPilot home"
+          ><span class="brand-mark">op</span>OpsPilot<span class="brand-dot"
+            >.</span
+          ></a
+        >
+        <span class="workspace-label">OPERATIONS WORKSPACE</span>
+        <nav aria-label="Main navigation">
+          <a class="nav-active" href="#workspace"
+            ><span aria-hidden="true">▦</span> Offboarding
+            <span class="nav-count" id="nav-count">0</span></a
+          >
+        </nav>
+        <div class="sidebar-note">
+          <span class="pulse-dot"></span> Human approval, always
+          <p>
+            Evidence first. Explicit decisions.<br />A record of every step.
+          </p>
+        </div>
+        <div class="sidebar-footer">
+          <span class="avatar">OP</span>
+          <div>Portfolio environment<small>Simulated integrations</small></div>
+        </div>
+      </aside>
+      <main id="workspace">
+        <header class="topbar">
+          <span>Workspace <span class="breadcrumb">/</span> Offboarding</span>
+          <div class="topbar-right">
+            <span class="environment">SIMULATION</span
+            ><span id="identity">Not signed in</span
+            ><button id="signout" class="text-button" hidden>Sign out</button>
+          </div>
+        </header>
+        <div class="main-content">
+          <section class="page-heading">
+            <div>
+              <p class="eyebrow">PEOPLE & ACCESS</p>
+              <h1>Offboarding, with oversight.</h1>
+              <p class="subtitle">
+                Review the evidence. Keep ownership clear. Approve with
+                confidence.
+              </p>
+            </div>
+            <button class="primary" id="new-request" disabled>
+              <span aria-hidden="true">＋</span> New request
+            </button>
+          </section>
+          <div class="notice">
+            <span class="notice-icon" aria-hidden="true">i</span>
+            <p>
+              <strong>A safe space to demonstrate real controls.</strong>
+              Employee records are fixtures. Access changes produce simulation
+              receipts; no accounts are disabled.
+            </p>
+          </div>
+          <div
+            id="message"
+            class="message"
+            role="status"
+            aria-live="polite"
+            hidden
+          ></div>
+          <section id="login-panel" class="login-panel">
+            <div>
+              <p class="eyebrow">YOUR OPERATIONS DESK</p>
+              <h2>Sign in to get started</h2>
+              <p>
+                Requesters see their own workflows. Approvers review requests
+                across the workspace.
+              </p>
+              <p class="muted">
+                Demo accounts: casey.requester and alex.approver. Use the demo
+                password set during deployment.
+              </p>
+            </div>
+            <form id="login-form">
+              <label
+                >Username<input
+                  name="username"
+                  autocomplete="username"
+                  required
+                  maxlength="128" /></label
+              ><label id="password-label"
+                >Password<input
+                  name="password"
+                  type="password"
+                  autocomplete="current-password"
+                  required
+              /></label>
+              <button type="submit" class="primary" id="login-button">
+                Sign in
+              </button>
+            </form>
+            <div id="demo-login" hidden>
+              <p class="muted">
+                Local preview · no AWS calls · data resets when the server stops
+              </p>
+              <button class="primary" data-demo="requester">
+                Enter as requester</button
+              ><button class="secondary" data-demo="approver">
+                Enter as approver
+              </button>
+            </div>
+          </section>
+          <section class="stats" aria-label="Counts for loaded requests">
+            <article>
+              <span>Loaded requests</span><strong id="count-total">0</strong
+              ><small>Current queue view</small>
+            </article>
+            <article>
+              <span>Awaiting approval <i class="dot amber"></i></span
+              ><strong id="count-pending">0</strong
+              ><small>Ready for a human decision</small>
+            </article>
+            <article>
+              <span>Policy blocked <i class="dot red"></i></span
+              ><strong id="count-blocked">0</strong
+              ><small>Resolve ownership first</small>
+            </article>
+            <article>
+              <span>Completed <i class="dot green"></i></span
+              ><strong id="count-done">0</strong
+              ><small>Simulation receipts recorded</small>
+            </article>
+          </section>
+          <div class="work-grid">
+            <section class="queue panel" aria-labelledby="queue-title">
+              <div class="panel-heading">
+                <div>
+                  <h2 id="queue-title">Request queue</h2>
+                  <p>Every offboarding has a paper trail.</p>
+                </div>
+                <button class="secondary compact" id="refresh" disabled>
+                  ↻ Refresh
+                </button>
+              </div>
+              <div class="queue-controls">
+                <label class="search-label"
+                  ><span class="sr-only">Search loaded requests</span
+                  ><input
+                    id="search"
+                    type="search"
+                    placeholder="Search employee or request…" /></label
+                ><label
+                  ><span class="sr-only">Filter status</span
+                  ><select id="filter">
+                    <option value="all">All statuses</option>
+                    <option value="awaiting_approval">Awaiting approval</option>
+                    <option value="blocked">Blocked</option>
+                    <option value="completed">Completed</option>
+                    <option value="failed">Failed</option>
+                  </select></label
+                >
+              </div>
+              <div id="workflow-list" class="workflow-list">
+                <div class="empty-state">
+                  <span class="empty-icon" aria-hidden="true">▤</span>
+                  <h3>Your queue starts here</h3>
+                  <p>
+                    Sign in, then create an offboarding request to collect
+                    evidence and check policy.
+                  </p>
+                </div>
+              </div>
+              <button id="load-more" class="text-button load-more" hidden>
+                Load older requests
+              </button>
+            </section>
+            <section class="detail panel" aria-labelledby="detail-title">
+              <div class="panel-heading">
+                <div>
+                  <p class="eyebrow">WORKFLOW DETAIL</p>
+                  <h2 id="detail-title">A clear path to a decision</h2>
+                </div>
+                <span class="detail-icon" aria-hidden="true">↗</span>
+              </div>
+              <div id="detail-body" class="detail-body">
+                <div class="detail-placeholder">
+                  <div class="steps-art" aria-hidden="true">
+                    <span>01</span><i></i><span>02</span><i></i><span>03</span>
+                  </div>
+                  <h3>Evidence → review → action</h3>
+                  <p>
+                    Select a request to inspect employee records, proposed
+                    access changes, and the complete audit trail.
+                  </p>
+                  <ul>
+                    <li>Policies checked before approval</li>
+                    <li>A separate person reviews the action</li>
+                    <li>Every simulated execution has a receipt</li>
+                  </ul>
+                </div>
+              </div>
+            </section>
+          </div>
+          <footer class="page-footer">
+            <span>OpsPilot / Human-controlled operations</span
+            ><span>Evidence. Accountability. Traceability.</span>
+          </footer>
+        </div>
+      </main>
+    </div>
+    <dialog id="request-dialog">
+      <form id="request-form">
+        <div class="dialog-heading">
+          <div>
+            <p class="eyebrow">NEW WORKFLOW</p>
+            <h2>Start an offboarding</h2>
+          </div>
+          <button
+            type="button"
+            class="text-button"
+            id="close-dialog"
+            aria-label="Close dialog"
+          >
+            ✕
+          </button>
+        </div>
+        <p class="muted">
+          OpsPilot will collect evidence and check policy before proposing an
+          access change.
+        </p>
+        <label
+          >Employee<select name="employee_id">
+            <option value="EMP-1043">
+              Alex Rivera · EMP-1043 · no open incidents
+            </option>
+            <option value="EMP-1042">
+              Morgan Lee · EMP-1042 · high-severity incident
+            </option>
+          </select></label
+        ><label
+          >Business reason<textarea
+            name="reason"
+            required
+            maxlength="1000"
+            rows="4"
+            placeholder="Explain why access should be removed…"
+          ></textarea></label
+        ><label
+          >Request ID<input
+            name="request_id"
+            required
+            maxlength="100"
+            pattern="[A-Za-z0-9_-]+"
+          /><small
+            >Reuse this ID only when retrying the same request.</small
+          ></label
+        >
+        <div class="dialog-actions">
+          <button class="primary" type="submit">Collect evidence</button>
+        </div>
+      </form>
+    </dialog>
+  </body>
+</html>

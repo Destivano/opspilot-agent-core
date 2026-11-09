@@ -1,0 +1,223 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Transform: AWS::Serverless-2016-10-31
+Description: OpsPilot - approval-controlled offboarding simulation
+
+Parameters:
+  BudgetEmail:
+    Type: String
+    Description: Email for account-wide cost alerts (alert only, not a spending cap)
+  DemoPassword:
+    Type: String
+    NoEcho: true
+    MinLength: 12
+    MaxLength: 128
+    AllowedPattern: "[^\\s]+"
+    Description: Shared password for the two fictional demo accounts (12+ characters, no spaces)
+  ModelId:
+    Type: String
+    Default: amazon.nova-micro-v1:0
+    Description: Regional Bedrock foundation model with Converse tool support
+
+Globals:
+  Function:
+    CodeUri: src/
+    Runtime: python3.13
+    Architectures: [x86_64]
+    MemorySize: 256
+    LoggingConfig:
+      LogFormat: JSON
+      ApplicationLogLevel: INFO
+      SystemLogLevel: WARN
+    Environment:
+      Variables:
+        WORKFLOW_TABLE: !Ref WorkflowTable
+        WORKFLOW_QUEUE: !Ref WorkflowQueue
+        MODEL_ID: !Ref ModelId
+    Tags:
+      Project: OpsPilot
+
+Resources:
+  WorkflowTable:
+    Type: AWS::DynamoDB::Table
+    Properties:
+      BillingMode: PAY_PER_REQUEST
+      AttributeDefinitions:
+        - AttributeName: workflow_id
+          AttributeType: S
+        - AttributeName: record_type
+          AttributeType: S
+        - AttributeName: created_at
+          AttributeType: S
+      KeySchema:
+        - AttributeName: workflow_id
+          KeyType: HASH
+      GlobalSecondaryIndexes:
+        - IndexName: WorkflowIndex
+          KeySchema:
+            - AttributeName: record_type
+              KeyType: HASH
+            - AttributeName: created_at
+              KeyType: RANGE
+          Projection:
+            ProjectionType: ALL
+      TimeToLiveSpecification:
+        AttributeName: expires_at
+        Enabled: true
+      SSESpecification:
+        SSEEnabled: true
+      Tags:
+        - Key: Project
+          Value: OpsPilot
+
+  DeadLetterQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      MessageRetentionPeriod: 1209600
+      SqsManagedSseEnabled: true
+
+  WorkflowQueue:
+    Type: AWS::SQS::Queue
+    Properties:
+      VisibilityTimeout: 720
+      SqsManagedSseEnabled: true
+      RedrivePolicy:
+        deadLetterTargetArn: !GetAtt DeadLetterQueue.Arn
+        maxReceiveCount: 4
+
+  DashboardApi:
+    Type: AWS::Serverless::HttpApi
+    Properties:
+      StageName: $default
+      DefaultRouteSettings:
+        ThrottlingBurstLimit: 10
+        ThrottlingRateLimit: 5
+  AgentFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      FunctionName: opspilot-agent-core
+      Handler: app.lambda_handler
+      Timeout: 15
+      Environment:
+        Variables:
+          DEMO_PASSWORD: !Ref DemoPassword
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [dynamodb:GetItem, dynamodb:PutItem, dynamodb:Query, dynamodb:UpdateItem, dynamodb:DeleteItem]
+              Resource:
+                - !GetAtt WorkflowTable.Arn
+                - !Sub ${WorkflowTable.Arn}/index/*
+            - Effect: Allow
+              Action: sqs:SendMessage
+              Resource: !GetAtt WorkflowQueue.Arn
+      Events:
+        Index:
+          Type: HttpApi
+          Properties: {ApiId: !Ref DashboardApi, Path: /, Method: GET}
+        Script:
+          Type: HttpApi
+          Properties: {ApiId: !Ref DashboardApi, Path: /app.js, Method: GET}
+        Styles:
+          Type: HttpApi
+          Properties: {ApiId: !Ref DashboardApi, Path: /styles.css, Method: GET}
+        Config:
+          Type: HttpApi
+          Properties: {ApiId: !Ref DashboardApi, Path: /config, Method: GET}
+        Login:
+          Type: HttpApi
+          Properties: {ApiId: !Ref DashboardApi, Path: /login, Method: POST}
+        Logout:
+          Type: HttpApi
+          Properties: {ApiId: !Ref DashboardApi, Path: /logout, Method: POST}
+        ReadApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref DashboardApi
+            Path: /api
+            Method: GET
+        CommandApi:
+          Type: HttpApi
+          Properties:
+            ApiId: !Ref DashboardApi
+            Path: /api
+            Method: POST
+
+  WorkerFunction:
+    Type: AWS::Serverless::Function
+    Properties:
+      Handler: app.worker_handler
+      Timeout: 120
+      Policies:
+        - Statement:
+            - Effect: Allow
+              Action: [dynamodb:GetItem, dynamodb:PutItem]
+              Resource: !GetAtt WorkflowTable.Arn
+            - Effect: Allow
+              Action: bedrock:InvokeModel
+              Resource: !Sub arn:${AWS::Partition}:bedrock:${AWS::Region}::foundation-model/${ModelId}
+      Events:
+        Work:
+          Type: SQS
+          Properties:
+            Queue: !GetAtt WorkflowQueue.Arn
+            BatchSize: 1
+            FunctionResponseTypes: [ReportBatchItemFailures]
+
+  AgentLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${AgentFunction}
+      RetentionInDays: 7
+  WorkerLogGroup:
+    Type: AWS::Logs::LogGroup
+    Properties:
+      LogGroupName: !Sub /aws/lambda/${WorkerFunction}
+      RetentionInDays: 7
+
+  DeadLetterAlarm:
+    Type: AWS::CloudWatch::Alarm
+    Properties:
+      AlarmDescription: Queue delivery exhausted retries; inspect the dead-letter queue
+      Namespace: AWS/SQS
+      MetricName: ApproximateNumberOfMessagesVisible
+      Dimensions:
+        - Name: QueueName
+          Value: !GetAtt DeadLetterQueue.QueueName
+      Statistic: Maximum
+      Period: 60
+      EvaluationPeriods: 1
+      Threshold: 1
+      ComparisonOperator: GreaterThanOrEqualToThreshold
+      TreatMissingData: notBreaching
+
+  CostBudget:
+    Type: AWS::Budgets::Budget
+    Properties:
+      Budget:
+        BudgetName: opspilot-agent-core-monthly
+        BudgetLimit: {Amount: 2, Unit: USD}
+        TimeUnit: MONTHLY
+        BudgetType: COST
+      NotificationsWithSubscribers:
+        - Notification:
+            NotificationType: ACTUAL
+            ComparisonOperator: GREATER_THAN
+            Threshold: 50
+            ThresholdType: PERCENTAGE
+          Subscribers:
+            - SubscriptionType: EMAIL
+              Address: !Ref BudgetEmail
+
+Outputs:
+  DashboardUrl:
+    Value: !Sub https://${DashboardApi}.execute-api.${AWS::Region}.amazonaws.com/
+  FunctionName:
+    Value: !Ref AgentFunction
+  WorkerFunctionName:
+    Value: !Ref WorkerFunction
+  WorkflowTableName:
+    Value: !Ref WorkflowTable
+  LogGroupName:
+    Value: !Ref AgentLogGroup
+  DeadLetterQueueUrl:
+    Value: !Ref DeadLetterQueue

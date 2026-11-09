@@ -1,0 +1,6 @@
+{
+  "action": "start",
+  "request_id": "demo-offboarding-001",
+  "employee_id": "EMP-1043",
+  "reason": "Employee's final working day. Review assigned systems and propose access removal."
+}

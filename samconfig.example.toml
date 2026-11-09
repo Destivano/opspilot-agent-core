@@ -1,0 +1,13 @@
+version = 0.1
+
+[default.deploy.parameters]
+stack_name = "opspilot-agent-core"
+resolve_s3 = true
+s3_prefix = "opspilot-agent-core"
+region = "us-east-1"
+confirm_changeset = true
+capabilities = "CAPABILITY_IAM"
+# Supply BudgetEmail and DemoPassword during `sam deploy --guided`; keep samconfig.toml private.
+
+[default.global.parameters]
+region = "us-east-1"

@@ -1,0 +1,5 @@
+-r src/requirements.txt
+pytest==9.2.0
+ruff==0.17.4
+moto[dynamodb,sqs]==5.2.5
+cfn-lint==1.60.0

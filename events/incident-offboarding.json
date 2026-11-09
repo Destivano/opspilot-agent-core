@@ -1,0 +1,6 @@
+{
+  "action": "start",
+  "request_id": "demo-incident-offboarding-001",
+  "employee_id": "EMP-1042",
+  "reason": "Review employee and asset records and check incident ownership before offboarding."
+}
