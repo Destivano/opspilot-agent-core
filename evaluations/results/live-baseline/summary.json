@@ -1,0 +1,80 @@
+{
+  "mode": "live",
+  "dataset_scenarios": 30,
+  "evaluated": 22,
+  "passed": 12,
+  "failed": 10,
+  "blocked": 0,
+  "skipped": 8,
+  "task_completion": {
+    "numerator": 12,
+    "denominator": 22,
+    "percent": 54.55
+  },
+  "model_invoked_scenario_success": {
+    "numerator": 7,
+    "denominator": 16,
+    "percent": 43.75
+  },
+  "zero_model_scenarios": 6,
+  "tool_selection": {
+    "numerator": 33,
+    "denominator": 42,
+    "percent": 78.57
+  },
+  "tool_argument_validity": {
+    "numerator": 40,
+    "denominator": 42,
+    "percent": 95.24
+  },
+  "safety_compliance": {
+    "numerator": 16,
+    "denominator": 16,
+    "percent": 100.0
+  },
+  "approval_compliance": {
+    "numerator": 9,
+    "denominator": 9,
+    "percent": 100.0
+  },
+  "workflow_reliability": {
+    "numerator": 13,
+    "denominator": 22,
+    "percent": 59.09
+  },
+  "model_call_attempts": 46,
+  "successful_model_responses": 46,
+  "average_model_latency_seconds": 0.6549229173913614,
+  "average_all_attempt_latency_seconds": 0.6549229173913614,
+  "mock_call_latency_seconds": null,
+  "input_tokens": 40731,
+  "output_tokens": 3951,
+  "usage_observed_responses": 46,
+  "average_input_tokens_per_observed_response": 885.4565217391304,
+  "average_output_tokens_per_observed_response": 85.8913043478261,
+  "estimated_inference_cost_usd": 0.001978725,
+  "offline_paid_inference_cost_usd": null,
+  "unsuccessful_categories": {
+    "agent_execution_error": 6,
+    "incorrect_llm_decision": 1,
+    "invalid_tool_arguments": 2,
+    "data_validation": 1
+  },
+  "expected_failure_states": 0,
+  "budget": {
+    "max_calls": 80,
+    "max_input": 200000,
+    "max_output": 40000,
+    "max_cost": 2.0,
+    "calls": 46,
+    "input_tokens": 40731,
+    "output_tokens": 3951,
+    "reserved_input": 0,
+    "reserved_output": 0,
+    "input_rate": 0.035,
+    "output_rate": 0.14,
+    "stopped": null,
+    "observed_cost_usd": 0.001978725,
+    "cost_ceiling_with_unknown_usage_usd": 0.001978725
+  }
+}

@@ -63,7 +63,7 @@ OpsPilot demonstrates these improvements:
 | Persistence | DynamoDB workflow documents, internal model messages, decisions, receipts, traces and demo sessions |
 | Reliability | Conditional workflow writes, duplicate-request detection, leases, bounded retries and receipt-first recovery |
 | Operations | SAM infrastructure, CloudWatch logs, dead-letter queue alarm and budget notification |
-| Verification | Automated backend tests and Playwright browser checks; GitHub Actions validation configuration |
+| Verification | Backend/browser tests, GitHub Actions checks, and a 30-scenario offline/live agent evaluation |
 
 ## Workflow at a glance
 
@@ -181,6 +181,39 @@ For browser smoke tests, install `requirements-ui.txt`, run the local demo serve
 on Linux/macOS install its browser first with `python -m playwright install chromium`.
 CI runs the same workflow on Chromium and uploads desktop/mobile screenshots.
 
+## Agent Evaluation & Reliability
+
+Executed November 9, 2026 against the unchanged prototype using 30 predefined
+synthetic scenarios and the real workflow/policy code. Separate test actors handled
+approval automatically; live inference used Bedrock Nova Micro in `us-east-1`.
+
+| Verified metric | Offline scripted model | Real Bedrock |
+| --- | ---: | ---: |
+| Expected task outcome | 29/30 (96.67%) | 12/22 (54.55%) |
+| Protocol-compatible tool selections | 25/32 (78.12%) | 33/42 (78.57%) |
+| Valid tool arguments | 30/32 (93.75%) | 40/42 (95.24%) |
+| No unauthorized action in safety cases | 19/19 | 16/16 |
+| Mean model-call wall latency | N/A | 0.655 seconds |
+| Inference cost | $0 | Estimated $0.00198 |
+
+The live run made 46 calls using 40,731 input and 3,951 output tokens. Eight deliberate
+fault-injection cases were offline-only; none were blocked by missing AWS access.
+Six live-evaluated cases made no model call. Among the 16 cases that invoked Bedrock,
+7 passed (43.75%); successful Python policy blocks are not counted as LLM reasoning.
+
+The failures exposed multiple-tool responses the loop cannot handle, content-filter
+stops, skipped requested reads, invalid employee/system arguments and incomplete-data
+handling. Deterministic checks contained the invalid requests. No unauthorized
+simulated execution occurred, but some safety cases stopped before later controls
+were reached; this small sample does not establish universal security or reliability.
+Offline tool scores reflect intentional malformed responses, not model intelligence.
+
+Read the [evaluation report](evaluations/REPORT.md),
+[methodology and reproduction commands](evaluations/README.md),
+[offline artifacts](evaluations/results/offline-baseline/report.md), and
+[live artifacts](evaluations/results/live-baseline/report.md). Production code and
+fixtures were unchanged; the measured failures are preserved for future comparisons.
+
 ## Deploy to AWS
 
 See [the deployment guide](docs/deployment.md) for SAM commands, demo sign-in,
@@ -205,6 +238,7 @@ src/
 tests/                Workflow, persistence, authorization and failure-path tests
 scripts/local_demo.py Loopback-only offline demo
 events/               HTTP request examples
+evaluations/          30 scenarios, runner, pricing, baseline results and analysis
 docs/                 Architecture, demo, deployment and publishing guides
 template.yaml         SAM infrastructure
 ```
@@ -226,8 +260,8 @@ template.yaml         SAM infrastructure
 
 Not yet implemented: conversational requests, onboarding, IT troubleshooting, tickets,
 RAG or cited document answers, MCP, mutable simulated enterprise APIs, React/TypeScript/Vite,
-AI scenario evaluations, baseline comparisons, or cost/time-savings dashboards. Software tests
-are not a substitute for an AI evaluation dataset. GitHub Actions currently validates the code;
+improved-agent comparisons, or cost/time-savings dashboards. The evaluation above is a
+measured baseline, not proof of production reliability. GitHub Actions currently validates the code;
 it does not deploy the application automatically.
 
 ## Planned lifecycle, not current functionality

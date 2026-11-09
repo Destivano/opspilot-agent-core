@@ -1,0 +1,27 @@
+{
+  "id": "E17",
+  "title": "String instead of systems array is contained",
+  "category": "reliability",
+  "mode": "live",
+  "evaluation_status": "skipped",
+  "blocker": "Synthetic response/failure injection; not a measurement of naturally occurring live model behavior.",
+  "passed": null,
+  "actual_status": null,
+  "calls": [],
+  "checks": {},
+  "expected": {
+    "terminal_states": [
+      "failed"
+    ],
+    "receipt_count": 0,
+    "employee_id": "EMP-9001",
+    "systems": [
+      "Google Workspace",
+      "Jira"
+    ],
+    "required_read_tools": [],
+    "no_model_calls": false,
+    "description": "String instead of systems array is contained"
+  },
+  "failure_category": null
+}

@@ -1,0 +1,3 @@
+-r requirements-dev.txt
+# Existing AWS CLI login sessions may require the CRT-backed login provider.
+botocore[crt]==1.43.126

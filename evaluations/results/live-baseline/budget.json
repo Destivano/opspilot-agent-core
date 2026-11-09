@@ -1,0 +1,16 @@
+{
+  "max_calls": 80,
+  "max_input": 200000,
+  "max_output": 40000,
+  "max_cost": 2.0,
+  "calls": 46,
+  "input_tokens": 40731,
+  "output_tokens": 3951,
+  "reserved_input": 0,
+  "reserved_output": 0,
+  "input_rate": 0.035,
+  "output_rate": 0.14,
+  "stopped": null,
+  "observed_cost_usd": 0.001978725,
+  "cost_ceiling_with_unknown_usage_usd": 0.001978725
+}
