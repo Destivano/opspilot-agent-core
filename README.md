@@ -2,7 +2,7 @@
 
 **Employee offboarding with evidence, deterministic policy, and human approval.**
 
-> Current implementation snapshot: November 9, 2026. This README describes the
+> Current source snapshot: November 10, 2026. This README describes the
 > existing offboarding prototype, before the planned expansion into a multi-workflow
 > enterprise agent. Planned features are not presented as implemented capabilities.
 
@@ -103,6 +103,16 @@ choose an arbitrary employee or system, bypass approval, or make a blocked reque
 The incident-blocked example stops before any model call. This is a narrow AI-assisted
 workflow, not an open-ended conversational agent.
 
+Up to three distinct read tools can run in one model turn. Every request is validated
+before the batch runs, and all results are returned together with matching tool IDs.
+Mixed read/action batches and multiple actions fail before any handler runs. An access
+proposal must appear alone and still needs exact-scope validation and separate approval.
+
+Initial evidence and fresh read results are checked for complete, consistent records.
+Requests naming specific read tools require those checks in orchestration; ordinary
+requests reuse initial evidence. Provider filtering produces an explained block without
+automatic retry. These source improvements require a future deployment to update AWS.
+
 ## Demonstration scenarios
 
 | Employee | Fixture data | Expected path |
@@ -183,36 +193,41 @@ CI runs the same workflow on Chromium and uploads desktop/mobile screenshots.
 
 ## Agent Evaluation & Reliability
 
-Executed November 9, 2026 against the unchanged prototype using 30 predefined
-synthetic scenarios and the real workflow/policy code. Separate test actors handled
-approval automatically; live inference used Bedrock Nova Micro in `us-east-1`.
+The original baseline (November 9) and reliability follow-up (November 10, Africa/Tunis)
+use the same 30 predefined synthetic scenarios, expected outcomes, scorer, Nova Micro
+model and temperature. Both reuse the real workflow/policy code with isolated storage
+and automatic decisions from separate test actors. Live inference uses `us-east-1`.
 
-| Verified metric | Offline scripted model | Real Bedrock |
+| Verified metric | Offline before → after | Live before → after |
 | --- | ---: | ---: |
-| Expected task outcome | 29/30 (96.67%) | 12/22 (54.55%) |
-| Protocol-compatible tool selections | 25/32 (78.12%) | 33/42 (78.57%) |
-| Valid tool arguments | 30/32 (93.75%) | 40/42 (95.24%) |
-| No unauthorized action in safety cases | 19/19 | 16/16 |
-| Mean model-call wall latency | N/A | 0.655 seconds |
-| Inference cost | $0 | Estimated $0.00198 |
+| Expected task outcome | 29/30 → **30/30** | 12/22 → **19/22 (86.36%)** |
+| Success among model-invoked cases | Scripted responses | 7/16 → **13/16 (81.25%)** |
+| Historical single-tool selection rubric | 25/32 → 25/34 | 33/42 → 22/43 |
+| Valid tool arguments | 30/32 → 32/34 | 40/42 → **43/43** |
+| No unauthorized action in safety cases | 19/19 → 19/19 | 16/16 → 16/16 |
+| Mean model-call wall latency | N/A | 0.655 → 0.724 seconds |
+| Estimated inference cost | $0 | $0.00198 → $0.00185 |
 
-The live run made 46 calls using 40,731 input and 3,951 output tokens. Eight deliberate
-fault-injection cases were offline-only; none were blocked by missing AWS access.
-Six live-evaluated cases made no model call. Among the 16 cases that invoked Bedrock,
-7 passed (43.75%); successful Python policy blocks are not counted as LLM reasoning.
+The post-fix live run made 43 calls using 36,964 input and 3,979 output tokens.
+Eight deliberate fault-injection cases remain offline-only; no evaluations were
+externally blocked. Six live cases made no model call and are counted as deterministic
+application behavior. Their successes do not establish successful LLM reasoning.
 
-The failures exposed multiple-tool responses the loop cannot handle, content-filter
-stops, skipped requested reads, invalid employee/system arguments and incomplete-data
-handling. Deterministic checks contained the invalid requests. No unauthorized
-simulated execution occurred, but some safety cases stopped before later controls
-were reached; this small sample does not establish universal security or reliability.
-Offline tool scores reflect intentional malformed responses, not model intelligence.
+The source now supports read batches, handles filtering explicitly, validates evidence
+and enforces named verification checks. Three live cases still failed due to provider
+filtering, including one that previously passed. **The frozen selection score fell
+because it still penalizes valid multi-tool responses**; all 21 negative post-fix
+selection judgments came from permitted read batches. The scorer was not changed.
+No unauthorized simulated execution occurred, but this small sample does not establish
+universal security or production reliability. Some cases stop before later controls run.
 
-Read the [evaluation report](evaluations/REPORT.md),
+Read the [before/after report](evaluations/POSTFIX_REPORT.md),
+[preserved baseline report](evaluations/REPORT.md),
 [methodology and reproduction commands](evaluations/README.md),
 [offline artifacts](evaluations/results/offline-baseline/report.md), and
-[live artifacts](evaluations/results/live-baseline/report.md). Production code and
-fixtures were unchanged; the measured failures are preserved for future comparisons.
+[live baseline artifacts](evaluations/results/live-baseline/report.md). The original
+dataset, scorer, results and production-demo fixtures remain unchanged. Updated run
+artifacts are linked from the comparison report; the application was not redeployed.
 
 ## Deploy to AWS
 

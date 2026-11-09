@@ -22,6 +22,8 @@ from the fixture dictionaries in `src/tools.py`.
 The request becomes `blocked` if the employee is unknown, is not departing, has no assigned
 systems, or owns an unresolved high/critical incident. The explanation and evidence are saved.
 There is no model call on this path. Morgan Lee (`EMP-1042`) demonstrates this with `INC-882`.
+Missing or inconsistent required evidence also produces an explained block before inference;
+the worker does not fill missing security fields with empty defaults.
 
 ## 3. Ask the AI for a proposal
 
@@ -35,10 +37,26 @@ definitions to Bedrock. A planning loop allows up to six model turns across save
 | `get_open_incidents` | Read selected employee's incident fixtures; return a `toolResult` |
 | `disable_employee_access` | Validate employee, exact assigned systems and reason; save a pending action without executing it |
 
-Only one tool request per model turn is accepted. Read tools cannot access another employee.
-The model can skip reads because the initial evidence is already present. If it ends without
+Up to three distinct read tools per turn are accepted. The worker validates every name,
+argument, selected employee and unique tool ID before any handler runs. Results for the
+same turn are grouped in one user message with matching `toolUseId` values. Individual
+read failures produce correlated error results and stop planning before a proposal.
+Mixed read/action batches, multiple actions and duplicate names/IDs are rejected without
+partial execution. The original six-turn limit still applies to whole model responses.
+
+Ordinary requests can reuse initial evidence. Naming an allowlisted read tool explicitly
+in the business reason imposes that check in orchestration before planning; traces and
+actual results identify this separately from model-selected reads. Fresh read evidence
+is validated and business policy is reapplied. If the model ends without
 requesting an access change, the backend records `reviewed`, explicitly stating that no access
 changed. Invalid tools, malformed proposals and exhausted planning steps follow the failure path.
+
+Provider filtering (`content_filtered` or `guardrail_intervened`) produces a terminal
+`blocked` outcome with `error_kind=provider_filter`, an explanation and the actual stop
+reason in traces/log fields. It never creates approval or an action. It is not automatically
+retried or resumable. Truncated, malformed, context-limited and unknown stops produce
+controlled failures. A filtered optional summary after execution preserves the saved
+receipt and produces `completed_with_warning`.
 
 A valid mutation proposal produces `awaiting_approval`, including an action ID derived from
 the workflow and proposed inputs. This is where the approver reviews the exact requested change.

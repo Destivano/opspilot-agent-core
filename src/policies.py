@@ -3,13 +3,71 @@
 from domain import Problem
 from tools import get_assigned_assets, get_employee_profile, get_open_incidents
 
+READ_TOOLS = ("get_employee_profile", "get_assigned_assets", "get_open_incidents")
+
+
+def invalid_evidence(detail):
+    raise Problem("incomplete_evidence", "Evidence changed or is incomplete: " + detail, 409)
+
+
+def strings(value):
+    return isinstance(value, list) and all(isinstance(s, str) and s.strip() for s in value)
+
+
+def validate_record(name, record, employee_id):
+    """Validate tool data before policy or inference; never fill missing security fields."""
+    if not isinstance(record, dict) or record.get("employee_id") != employee_id:
+        invalid_evidence(f"{name} must identify the selected employee.")
+    if name == "get_employee_profile":
+        if record.get("found") is False:
+            return  # Explicit not-found sentinel is handled by business policy.
+        for field in ("name", "employment_status", "department", "manager"):
+            if not isinstance(record.get(field), str) or not record[field].strip():
+                invalid_evidence(f"employee {field} is missing or invalid.")
+        if "found" in record and record["found"] is not True:
+            invalid_evidence("employee found flag is invalid.")
+    elif name == "get_assigned_assets":
+        if not strings(record.get("systems")):
+            invalid_evidence("assigned systems must be an explicit list of nonempty names.")
+        if len(record["systems"]) > 30 or len(set(record["systems"])) != len(record["systems"]):
+            invalid_evidence("assigned systems must be unique and contain at most 30 entries.")
+        for field in ("devices", "open_asset_actions"):
+            if field in record and not strings(record[field]):
+                invalid_evidence(f"asset {field} is invalid.")
+    elif name == "get_open_incidents":
+        incidents = record.get("open_incidents")
+        if not isinstance(incidents, list):
+            invalid_evidence("incidents must be an explicit list.")
+        ids = set()
+        for incident in incidents:
+            if not isinstance(incident, dict):
+                invalid_evidence("incident must be a record.")
+            incident_id = incident.get("incident_id")
+            if not isinstance(incident_id, str) or not incident_id.strip() or incident_id in ids:
+                invalid_evidence("incident identifiers must be nonempty and unique.")
+            ids.add(incident_id)
+            if incident.get("severity") not in ("low", "medium", "high", "critical"):
+                invalid_evidence("incident severity is missing or invalid.")
+            if incident.get("status") not in (
+                "open",
+                "investigating",
+                "in_progress",
+                "monitoring",
+                "resolved",
+                "closed",
+            ):
+                invalid_evidence("incident status is missing or invalid.")
+    else:
+        invalid_evidence("unknown evidence source.")
+
 
 def gather_evidence(employee_id):
-    return {
-        "employee": get_employee_profile(employee_id),
-        "assets": get_assigned_assets(employee_id),
-        "incidents": get_open_incidents(employee_id)["open_incidents"],
-    }
+    employee = get_employee_profile(employee_id)
+    assets = get_assigned_assets(employee_id)
+    incidents = get_open_incidents(employee_id)
+    for name, record in zip(READ_TOOLS, (employee, assets, incidents), strict=True):
+        validate_record(name, record, employee_id)
+    return {"employee": employee, "assets": assets, "incidents": incidents["open_incidents"]}
 
 
 def check_offboarding(evidence):

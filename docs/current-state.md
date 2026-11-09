@@ -82,10 +82,13 @@ The project supports offboarding only. There are two employee fixtures, one inci
 and four tool definitions. There are no ticket APIs, onboarding workflows, knowledge documents,
 RAG pipeline, citations, MCP servers, conversational clarification, or cross-request memory.
 
-A [30-scenario evaluation baseline](../evaluations/REPORT.md) now records 29/30 offline
-passes and 12/22 applicable live Bedrock passes, with eight predefined offline-only cases.
-Validation includes 102 automated tests (55 existing and 47 evaluation tests); these use
-mocked AWS/model behavior and are separate from the recorded live inference run. There is
+A [30-scenario evaluation baseline](../evaluations/REPORT.md) records 29/30 offline
+passes and 12/22 applicable live Bedrock passes. The [reliability follow-up](../evaluations/POSTFIX_REPORT.md)
+records 30/30 offline and 19/22 live passes, with the same eight predefined offline-only cases.
+The current source supports read batches, controlled provider-filter outcomes, evidence
+schemas and enforced named verification. This source update has not redeployed AWS.
+Validation includes 143 automated tests and browser smoke checks; tests use
+mocked AWS/model behavior and are separate from the recorded live inference runs. There is
 no evaluation dashboard or measured productivity/cost improvement over another baseline.
 
 React, TypeScript, Vite, a static GitHub Pages showcase and automated deployment are future

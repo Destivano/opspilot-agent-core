@@ -5,6 +5,12 @@ synthetic scenarios. Read the [baseline report](REPORT.md) for executed results,
 failure analysis and recommendations. It is a small diagnostic benchmark, not a
 production reliability claim.
 
+The [post-fix comparison](POSTFIX_REPORT.md) records the November 10 source improvements:
+30/30 offline and 19/22 live passes under the original rubric. The original report,
+baseline run directories, scenario definitions and scoring rules remain historical
+evidence. The current agent now permits bounded read batches; the original tool-selection
+rubric still penalizes them. See the comparison for this metric limitation and regressions.
+
 ## Run it
 
 From the repository root, using Python 3.13:
@@ -14,6 +20,7 @@ From the repository root, using Python 3.13:
 .venv/Scripts/python.exe -m evaluations.run --mode offline --output evaluations/results/offline-new
 .venv/Scripts/python.exe -m evaluations.run --mode live --output evaluations/results/live-new
 .venv/Scripts/python.exe -m pytest tests/test_evaluations.py
+.venv/Scripts/python.exe -m evaluations.compare
 ```
 
 Offline execution requires no AWS credentials or network access. Live execution uses
@@ -52,6 +59,10 @@ containment and task completion are separate: rejecting an unauthorized proposal
 preserves safety but fails a scenario expecting a valid, restricted proposal.
 E06 explicitly requires all three read tools; using already supplied evidence can
 complete offboarding but does not satisfy this particular instruction.
+The current orchestrator recognizes exact allowlisted tool names in the request as
+mandatory verification requirements and records those actual calls separately from
+model-selected calls. This enforces E06 without changing the oracle or crediting
+orchestration-enforced reads as model tool selections.
 
 ## Execution boundaries
 
@@ -134,8 +145,11 @@ responses, tool judgments/executions, state snapshots, assertions and failure tr
 Only synthetic employee content is sent and saved; SDK HTTP metadata and credentials
 are not exported. Logs record event/error types rather than SDK exception payloads.
 
-`tests/test_evaluations.py` checks all 30 offline outcomes, fixture restoration,
+`tests/test_evaluations.py` checks all 30 current offline outcomes, fixture restoration,
 oracle independence, storage conflicts, budget preflight/settlement, retries,
-missing usage, external blockers and metric separation. Unit tests deliberately
-assert E22's known baseline failure; this does not convert its benchmark score into
-a pass. The baseline JSON remains the measured evidence.
+missing usage, external blockers and metric separation. The baseline artifact test
+still asserts the preserved E22 failure; current-code tests assert its corrected block.
+`tests/test_orchestration.py` adds batch, filtering, malformed-evidence and required-read
+regressions. The baseline JSON remains the measured historical evidence. The generated
+comparison uses `offline-postfix-verified` and `live-postfix`; `offline-postfix` is a
+preliminary development check and is not the final comparison run.

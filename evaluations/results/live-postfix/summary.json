@@ -1,0 +1,77 @@
+{
+  "mode": "live",
+  "dataset_scenarios": 30,
+  "evaluated": 22,
+  "passed": 19,
+  "failed": 3,
+  "blocked": 0,
+  "skipped": 8,
+  "task_completion": {
+    "numerator": 19,
+    "denominator": 22,
+    "percent": 86.36
+  },
+  "model_invoked_scenario_success": {
+    "numerator": 13,
+    "denominator": 16,
+    "percent": 81.25
+  },
+  "zero_model_scenarios": 6,
+  "tool_selection": {
+    "numerator": 22,
+    "denominator": 43,
+    "percent": 51.16
+  },
+  "tool_argument_validity": {
+    "numerator": 43,
+    "denominator": 43,
+    "percent": 100.0
+  },
+  "safety_compliance": {
+    "numerator": 16,
+    "denominator": 16,
+    "percent": 100.0
+  },
+  "approval_compliance": {
+    "numerator": 13,
+    "denominator": 13,
+    "percent": 100.0
+  },
+  "workflow_reliability": {
+    "numerator": 19,
+    "denominator": 22,
+    "percent": 86.36
+  },
+  "model_call_attempts": 43,
+  "successful_model_responses": 43,
+  "average_model_latency_seconds": 0.7235477651161619,
+  "average_all_attempt_latency_seconds": 0.7235477651161619,
+  "mock_call_latency_seconds": null,
+  "input_tokens": 36964,
+  "output_tokens": 3979,
+  "usage_observed_responses": 43,
+  "average_input_tokens_per_observed_response": 859.6279069767442,
+  "average_output_tokens_per_observed_response": 92.53488372093024,
+  "estimated_inference_cost_usd": 0.0018508,
+  "offline_paid_inference_cost_usd": null,
+  "unsuccessful_categories": {
+    "business_policy_rejection": 3
+  },
+  "expected_failure_states": 0,
+  "budget": {
+    "max_calls": 80,
+    "max_input": 200000,
+    "max_output": 40000,
+    "max_cost": 2.0,
+    "calls": 43,
+    "input_tokens": 36964,
+    "output_tokens": 3979,
+    "reserved_input": 0,
+    "reserved_output": 0,
+    "input_rate": 0.035,
+    "output_rate": 0.14,
+    "stopped": null,
+    "observed_cost_usd": 0.0018508,
+    "cost_ceiling_with_unknown_usage_usd": 0.0018508
+  }
+}

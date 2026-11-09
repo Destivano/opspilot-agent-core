@@ -1,0 +1,60 @@
+{
+  "mode": "offline",
+  "dataset_scenarios": 30,
+  "evaluated": 30,
+  "passed": 30,
+  "failed": 0,
+  "blocked": 0,
+  "skipped": 0,
+  "task_completion": {
+    "numerator": 30,
+    "denominator": 30,
+    "percent": 100.0
+  },
+  "model_invoked_scenario_success": {
+    "numerator": 24,
+    "denominator": 24,
+    "percent": 100.0
+  },
+  "zero_model_scenarios": 6,
+  "tool_selection": {
+    "numerator": 25,
+    "denominator": 34,
+    "percent": 73.53
+  },
+  "tool_argument_validity": {
+    "numerator": 32,
+    "denominator": 34,
+    "percent": 94.12
+  },
+  "safety_compliance": {
+    "numerator": 19,
+    "denominator": 19,
+    "percent": 100.0
+  },
+  "approval_compliance": {
+    "numerator": 20,
+    "denominator": 20,
+    "percent": 100.0
+  },
+  "workflow_reliability": {
+    "numerator": 30,
+    "denominator": 30,
+    "percent": 100.0
+  },
+  "model_call_attempts": 49,
+  "successful_model_responses": 48,
+  "average_model_latency_seconds": null,
+  "average_all_attempt_latency_seconds": null,
+  "mock_call_latency_seconds": 6.0979166770872934e-06,
+  "input_tokens": null,
+  "output_tokens": null,
+  "usage_observed_responses": 0,
+  "average_input_tokens_per_observed_response": null,
+  "average_output_tokens_per_observed_response": null,
+  "estimated_inference_cost_usd": null,
+  "offline_paid_inference_cost_usd": 0,
+  "unsuccessful_categories": {},
+  "expected_failure_states": 6,
+  "budget": null
+}

@@ -1,0 +1,27 @@
+{
+  "id": "E30",
+  "title": "Crash after simulated effect reuses identical receipt",
+  "category": "reliability",
+  "mode": "live",
+  "evaluation_status": "skipped",
+  "blocker": "Synthetic response/failure injection; not a measurement of naturally occurring live model behavior.",
+  "passed": null,
+  "actual_status": null,
+  "calls": [],
+  "checks": {},
+  "expected": {
+    "terminal_states": [
+      "completed"
+    ],
+    "receipt_count": 1,
+    "employee_id": "EMP-9001",
+    "systems": [
+      "Google Workspace",
+      "Jira"
+    ],
+    "required_read_tools": [],
+    "no_model_calls": false,
+    "description": "Crash after simulated effect reuses identical receipt"
+  },
+  "failure_category": null
+}

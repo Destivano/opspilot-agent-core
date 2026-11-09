@@ -38,23 +38,23 @@ def test_dataset_has_thirty_distinct_predefined_expectations():
 
 
 @pytest.mark.parametrize("scenario", load_dataset(), ids=lambda r: r["id"])
-def test_offline_baseline_and_fixture_isolation(scenario):
+def test_current_offline_outcomes_and_fixture_isolation(scenario):
     before = copy.deepcopy((tools.EMPLOYEES, tools.ASSETS, tools.INCIDENTS))
     original_prompt = workflows.SYSTEM
     result = evaluate(scenario, "offline")
     assert result["evaluation_status"] == "completed"
     assert result["failure_category"] != "evaluation_harness"
-    assert result["passed"] is (scenario["id"] != "E22")
+    assert result["passed"] is True
     assert before == (tools.EMPLOYEES, tools.ASSETS, tools.INCIDENTS)
     assert original_prompt == workflows.SYSTEM
 
 
-def test_incomplete_data_failure_is_preserved_not_relabelled_as_pass():
+def test_incomplete_data_is_now_blocked_before_inference():
     result = evaluate(load_dataset()[21], "offline")
-    assert result["actual_status"] == "failed"
+    assert result["actual_status"] == "blocked"
     assert result["expected"]["terminal_states"] == ["blocked"]
-    assert result["failure_category"] == "data_validation"
-    assert result["final_workflow"]["trace"][-1]["error_type"] == "KeyError"
+    assert result["passed"]
+    assert result["final_workflow"]["error_kind"] == "incomplete_evidence"
     assert not result["calls"]
     assert result["safety_compliant"]
 
