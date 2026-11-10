@@ -6,6 +6,16 @@
 > existing offboarding prototype, before the planned expansion into a multi-workflow
 > enterprise agent. Planned features are not presented as implemented capabilities.
 
+## Demo video
+
+**[Watch or download the OpsPilot demo](docs/videos/opspilot-demo.mp4)** — 5 minutes
+53 seconds, MP4, approximately 18 MB.
+
+The AWS demo was deployed for testing and recording, then retired on November 10, 2026.
+Its application resources and SAM deployment bucket have been removed. The recording,
+source code and evaluation results remain available here; use the
+[local preview](#try-the-dashboard-locally) to explore the dashboard without AWS.
+
 OpsPilot is an AWS-based portfolio prototype that demonstrates how an AI assistant can
 support an enterprise operations process while keeping authorization and business rules
 in application code. The dashboard collects offboarding requests, shows employee and asset
@@ -15,7 +25,7 @@ evidence, flags incident ownership, and records exact approval decisions and exe
 not connect to Google Workspace, GitHub Enterprise, or Jira and does not disable real accounts.
 No production impact or time-savings claims are made.
 
-In the deployed application, Amazon Bedrock Nova Micro can select tools and propose an
+In the AWS deployment, Amazon Bedrock Nova Micro can select tools and propose an
 access-removal action. Python code gathers initial evidence, enforces policy, validates the
 proposal and requires approval from a different demo identity. An SQS worker then produces
 a simulated execution receipt and asks the model for a short summary. DynamoDB preserves
@@ -111,8 +121,8 @@ proposal must appear alone and still needs exact-scope validation and separate a
 Initial evidence and fresh read results are checked for complete, consistent records.
 Requests naming specific read tools require those checks in orchestration; ordinary
 requests reuse initial evidence. Provider filtering produces an explained block without
-automatic retry. The maintainer confirmed deployment of these reliability fixes to
-the existing AWS demo stack on November 10, 2026.
+automatic retry. These reliability fixes were deployed for the recorded demo before
+the AWS resources were removed on November 10, 2026.
 
 ## Demonstration scenarios
 
@@ -121,7 +131,8 @@ the existing AWS demo stack on November 10, 2026.
 | Alex Rivera, `EMP-1043` | Departing; Google Workspace and Jira; no open incidents | Eligible for an AI proposal and approval; model responses can also end without a proposal |
 | Morgan Lee, `EMP-1042` | Departing; owns high-severity incident `INC-882` | Deterministically blocked before inference |
 
-On AWS, sign in as `casey.requester` to submit a request, then as `alex.approver` to review it.
+When deploying your own AWS copy, sign in as `casey.requester` to submit a request,
+then as `alex.approver` to review it.
 Both use the deployment's shared `DemoPassword`. These are fictional identities: the backend
 enforces different account IDs, but it does not establish that two different people are involved.
 
@@ -170,7 +181,7 @@ hashes, write versions and lease fields are omitted. Session tokens never go to 
 | Environment | Model | Workflow storage | Sign-in |
 | --- | --- | --- | --- |
 | Local preview | Scripted responses; no live AI | Process memory; cleared at restart | Local requester/approver buttons |
-| AWS deployment | Real Bedrock calls | DynamoDB | Demo username/password and expiring session |
+| AWS deployment (retired; reproducible with SAM) | Real Bedrock calls | DynamoDB | Demo username/password and expiring session |
 
 See [architecture and tradeoffs](docs/architecture.md) and [security boundaries](SECURITY.md).
 
@@ -256,7 +267,7 @@ tests/                Workflow, persistence, authorization and failure-path test
 scripts/local_demo.py Loopback-only offline demo
 events/               HTTP request examples
 evaluations/          30 scenarios, runner, pricing, baseline results and analysis
-docs/                 Architecture, demo, deployment and publishing guides
+docs/                 Architecture, guides, screenshots and recorded demo video
 template.yaml         SAM infrastructure
 ```
 
@@ -281,13 +292,15 @@ or cost/time-savings dashboards. The evaluation above includes a measured before
 comparison; it does not establish production reliability. GitHub Actions currently validates the code;
 it does not deploy the application automatically.
 
-## Planned lifecycle, not current functionality
+## Demo lifecycle and future work
 
-The agreed next phase expands this prototype into the broader enterprise agent. The full
-application will run temporarily for testing, evaluation and demo recording. After artifacts
-are exported, its AWS resources will be removed. A separate static GitHub Pages showcase
-will retain the project description, results and video without depending on a live backend.
-That showcase and the broader platform are future work; this documentation update does not
-deploy, delete or change application resources.
+The prototype ran temporarily on AWS for testing, evaluation and demo recording. Its
+application resources, deployment artifacts and shared SAM setup bucket were removed on
+November 10, 2026. The video and evaluation evidence are stored in this repository; no live
+AWS backend is required to view them. The local simulation remains runnable.
+
+The agreed next phase expands this prototype into the broader enterprise agent. A separate
+static GitHub Pages showcase with the project description, results and video is also future
+work; it has not been published yet.
 
 Licensed under [MIT](LICENSE).

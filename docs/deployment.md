@@ -1,5 +1,10 @@
 # Deployment and demo sign-in
 
+The recorded demo's AWS environment was removed on November 10, 2026, including its
+application stack, versioned deployment artifacts and shared SAM setup bucket. These
+instructions reproduce a new deployment. To view the project without deploying, use
+the [demo video](videos/opspilot-demo.mp4) or [local walkthrough](demo.md#local-walkthrough).
+
 ## Build and update
 
 From the project root, with Python 3.13, AWS CLI, SAM CLI and an authenticated AWS profile:

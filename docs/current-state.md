@@ -3,6 +3,12 @@
 Snapshot date: November 10, 2026. This describes the repository's existing implementation,
 not the target platform in the future project plan. It is not a fresh audit of deployed AWS resources.
 
+Deployment lifecycle: the AWS demo was retired on November 10, 2026 after testing and
+recording. Its application resources and SAM deployment storage were removed. The
+[demo video](videos/opspilot-demo.mp4), source and evaluation artifacts remain in the
+repository, and the local simulation still runs. AWS architecture descriptions below
+document the implementation that can be redeployed with SAM.
+
 ## Project summary
 
 OpsPilot is an AWS serverless, AI-assisted employee-offboarding prototype. A requester selects
