@@ -22,9 +22,27 @@ Open `http://127.0.0.1:8000/` to preview. Keep assets relative so the same HTML 
 under the GitHub project path. Original video and diagram files stay in `docs/`; the
 build copies them to the site's expected `assets/` paths without duplicate tracked media.
 
+## Validation
+
+From the project root, after installing `requirements-dev.txt`:
+
+```powershell
+.venv/Scripts/python.exe -m pytest
+.venv/Scripts/ruff.exe check .
+.venv/Scripts/ruff.exe format --check .
+node --check src/static/app.js
+.venv/Scripts/cfn-lint.exe template.yaml
+```
+
+Backend tests mock AWS and model responses; they require no live credentials. GitHub
+Actions runs these checks and browser smoke tests. For local browser checks, install
+`requirements-ui.txt`, start `scripts/local_demo.py`, and run `scripts/browser_smoke.py`
+in another terminal. Windows uses installed Chrome; on Linux/macOS first run
+`python -m playwright install chromium`.
+
 ## Repository changes
 
-1. Run all checks in the README and review the diff.
+1. Run the validation checks above and review the diff.
 2. Confirm `.aws-sam/`, `.venv/`, `.uv-cache/`, and `samconfig.toml` are ignored with
    `git status --short --ignored`. None of them should be staged.
 3. Review the MIT license and replace its generic copyright holder if you prefer your own name.
