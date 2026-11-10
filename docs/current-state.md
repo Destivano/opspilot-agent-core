@@ -99,8 +99,11 @@ Validation includes 143 automated tests and browser smoke checks; tests use
 mocked AWS/model behavior and are separate from the recorded live inference runs. There is
 no evaluation dashboard or measured productivity/cost improvement over another baseline.
 
-React, TypeScript, Vite, a static GitHub Pages showcase and automated deployment are future
-work. Cognito has intentionally been removed from the current template.
+The [static GitHub Pages showcase](https://destivano.github.io/opspilot-agent-core/) now
+uses the root `index.html` design and publishes the recorded video, architecture and results.
+Its dedicated Actions workflow packages only declared public assets; it does not deploy AWS.
+React, TypeScript, Vite and automated AWS deployment remain future work. Cognito has
+intentionally been removed from the current template.
 
 ## Related documentation
 

@@ -8,6 +8,8 @@
 
 ## Demo video
 
+**[Open the project showcase and video player](https://destivano.github.io/opspilot-agent-core/)**
+
 **[Download the OpsPilot demo (MP4)](https://raw.githubusercontent.com/Destivano/opspilot-agent-core/main/docs/videos/opspilot-demo.mp4)** — 5 minutes
 53 seconds, MP4, approximately 18 MB.
 
@@ -17,8 +19,8 @@
 [PDF](docs/diagrams/opspilot-aws-architecture.pdf) ·
 [Diagram source](scripts/build_architecture_diagram.py)
 
-Open the downloaded file in your video player. GitHub's repository file viewer does not
-preview this recording; the link above downloads the video directly.
+The showcase plays the recording in your browser. The download link is available for
+offline viewing; GitHub's repository file viewer does not preview this recording.
 
 The AWS demo was deployed for testing and recording, then retired on November 10, 2026.
 Its application resources and SAM deployment bucket have been removed. The recording,
@@ -276,6 +278,8 @@ tests/                Workflow, persistence, authorization and failure-path test
 scripts/local_demo.py Loopback-only offline demo
 events/               HTTP request examples
 evaluations/          30 scenarios, runner, pricing, baseline results and analysis
+index.html            Static GitHub Pages showcase with in-browser demo playback
+scripts/build_showcase.py  Package only the public HTML and media for Pages
 docs/                 Architecture, guides, screenshots and recorded demo video
 template.yaml         SAM infrastructure
 ```
@@ -298,8 +302,8 @@ template.yaml         SAM infrastructure
 Not yet implemented: conversational requests, onboarding, IT troubleshooting, tickets,
 RAG or cited document answers, MCP, mutable simulated enterprise APIs, React/TypeScript/Vite,
 or cost/time-savings dashboards. The evaluation above includes a measured before/after
-comparison; it does not establish production reliability. GitHub Actions currently validates the code;
-it does not deploy the application automatically.
+comparison; it does not establish production reliability. GitHub Actions validates the code
+and publishes the static showcase; it does not deploy the AWS application automatically.
 
 ## Demo lifecycle and future work
 
@@ -308,8 +312,10 @@ application resources, deployment artifacts and shared SAM setup bucket were rem
 November 10, 2026. The video and evaluation evidence are stored in this repository; no live
 AWS backend is required to view them. The local simulation remains runnable.
 
-The agreed next phase expands this prototype into the broader enterprise agent. A separate
-static GitHub Pages showcase with the project description, results and video is also future
-work; it has not been published yet.
+The [GitHub Pages showcase](https://destivano.github.io/opspilot-agent-core/) presents
+the supplied HTML design, project description, in-browser video, architecture and measured
+results. It publishes only static files and does not recreate or contact the AWS backend.
+The agreed next phase expanding this prototype into a broader enterprise agent remains
+future work.
 
 Licensed under [MIT](LICENSE).

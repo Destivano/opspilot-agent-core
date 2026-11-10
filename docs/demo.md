@@ -2,6 +2,9 @@
 
 ## Recorded demo
 
+[Watch the demo in the project showcase](https://destivano.github.io/opspilot-agent-core/#demo).
+The GitHub Pages site includes an in-browser MP4 player and the architecture diagram.
+
 [Download the demo video directly](https://raw.githubusercontent.com/Destivano/opspilot-agent-core/main/docs/videos/opspilot-demo.mp4)
 (5:53, MP4, approximately 18 MB), then open it in a video player. This link bypasses
 GitHub's repository file viewer, which cannot preview the recording.

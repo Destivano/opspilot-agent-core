@@ -13,6 +13,7 @@ htmlcov/
 test-results/
 playwright-report/
 node_modules/
+_site/
 .env
 .env.*
 !.env.example

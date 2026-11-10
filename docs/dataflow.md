@@ -25,8 +25,9 @@ flowchart LR
     Worker --> Logs
 ```
 
-HTTP responses travel back through API Gateway to the browser. The dashboard is served from
-the same origin as its backend; no GitHub Pages frontend or cross-origin frontend is used today.
+HTTP responses travel back through API Gateway to the browser. The application dashboard
+uses the same origin as its backend. A separate GitHub Pages showcase serves static HTML,
+the recorded video and architecture image; it makes no calls to the retired AWS API.
 
 ## Sign-in data flow
 

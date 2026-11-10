@@ -1,5 +1,29 @@
 # Publish to GitHub
 
+## Static GitHub Pages showcase
+
+The public showcase is at <https://destivano.github.io/opspilot-agent-core/>.
+The supplied root `index.html` is the editable source. It is separate from the application
+dashboard at `src/static/index.html` and needs no AWS account or backend to view.
+
+`scripts/build_showcase.py` packages only the HTML, demo MP4, architecture PNG and poster
+into the ignored `_site/` directory. It validates relative asset references and refuses
+unexpected output files. `.github/workflows/pages.yml` builds that directory and deploys
+it using GitHub Pages Actions on relevant pushes to `main` or manual dispatch. Repository
+Pages settings use **GitHub Actions** as the publishing source. No AWS credentials or
+deployment permissions are used.
+
+```powershell
+.venv/Scripts/python.exe scripts/build_showcase.py
+.venv/Scripts/python.exe -m http.server 8000 --bind 127.0.0.1 --directory _site
+```
+
+Open `http://127.0.0.1:8000/` to preview. Keep assets relative so the same HTML works
+under the GitHub project path. Original video and diagram files stay in `docs/`; the
+build copies them to the site's expected `assets/` paths without duplicate tracked media.
+
+## Repository changes
+
 1. Run all checks in the README and review the diff.
 2. Confirm `.aws-sam/`, `.venv/`, `.uv-cache/`, and `samconfig.toml` are ignored with
    `git status --short --ignored`. None of them should be staged.

@@ -1,0 +1,280 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>OpsPilot: AI proposes, humans decide</title>
+<meta name="description" content="OpsPilot is an AWS portfolio prototype where an LLM agent proposes employee offboarding actions, deterministic policy guards them, and a human approves.">
+<link rel="canonical" href="https://destivano.github.io/opspilot-agent-core/">
+<meta name="theme-color" content="#ece6ff">
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 100 100'%3E%3Ctext y='.9em' font-size='90'%3E%F0%9F%9B%A9%3C/text%3E%3C/svg%3E">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Bricolage+Grotesque:opsz,wght@12..96,400;12..96,600;12..96,800&display=swap" rel="stylesheet">
+<style>
+:root{
+  --paper:#ece6ff; --ink:#16121f; --white:#fffdf8;
+  --violet:#6c5cff; --tang:#ff6a3d; --bubble:#ff9bd6; --lemon:#ffe24a; --mint:#7cf2c0;
+  --line:3px solid var(--ink); --pop:6px 6px 0 var(--ink);
+  --r:22px; color-scheme:light;
+}
+*{box-sizing:border-box;margin:0}
+[hidden]{display:none!important}
+html{scroll-behavior:smooth;scroll-padding-top:90px}
+body{font-family:"Bricolage Grotesque",system-ui,sans-serif;background:var(--paper);color:var(--ink);line-height:1.5;
+  background-image:radial-gradient(var(--ink) 1px,transparent 1.4px);background-size:26px 26px;background-position:0 0;
+  -webkit-font-smoothing:antialiased;overflow-x:hidden}
+body::before{content:"";position:fixed;inset:0;background:var(--paper);opacity:.93;z-index:-1}
+a{color:inherit}
+:focus-visible{outline:4px solid var(--violet);outline-offset:3px;border-radius:8px}
+.wrap{width:min(1180px,100% - 40px);margin-inline:auto}
+section{padding:clamp(48px,8vw,96px) 0}
+
+/* nav */
+nav{position:sticky;top:12px;z-index:20;display:flex;justify-content:center;padding:0 12px;padding-top:env(safe-area-inset-top)}
+.pill{display:flex;align-items:center;gap:6px;background:var(--white);border:var(--line);border-radius:99px;padding:6px 6px 6px 18px;box-shadow:4px 4px 0 var(--ink);max-width:100%}
+.pill b{font-weight:800;margin-right:10px;white-space:nowrap}
+.pill a{text-decoration:none;font-weight:600;font-size:.95rem;padding:7px 14px;border-radius:99px}
+.pill a:hover{background:var(--lemon)}
+.pill .gh{background:var(--ink);color:var(--white)}
+.pill .gh:hover{background:var(--violet)}
+@media(max-width:640px){.pill a.opt{display:none}}
+
+/* hero */
+.hero{padding-top:clamp(36px,6vw,72px)}
+.hero-grid{display:grid;grid-template-columns:1fr;gap:44px;align-items:center}
+@media(min-width:960px){.hero-grid{grid-template-columns:.9fr 1.1fr}}
+h1{font-size:clamp(3rem,8.4vw,6.6rem);line-height:.92;font-weight:800;letter-spacing:-.035em;font-variation-settings:"opsz" 96}
+h1 .hl{background:linear-gradient(transparent 58%,var(--bubble) 58% 92%,transparent 92%);padding:0 .08em;margin-inline:-.08em}
+h1 s{text-decoration-thickness:.08em;text-decoration-color:var(--tang);opacity:.55}
+.lede{font-size:clamp(1.1rem,2vw,1.35rem);max-width:34ch;margin-top:22px;font-weight:500}
+.chips{display:flex;flex-wrap:wrap;gap:10px;margin-top:26px}
+.chip{border:var(--line);border-radius:99px;padding:5px 14px;font-weight:600;font-size:.92rem;background:var(--white)}
+.chip:nth-child(2){background:var(--lemon);transform:rotate(-2deg)}
+.chip:nth-child(3){background:var(--mint);transform:rotate(1.5deg)}
+.chip:nth-child(4){background:var(--bubble);transform:rotate(-1deg)}
+.cta{display:flex;flex-wrap:wrap;gap:14px;margin-top:30px}
+.btn{display:inline-block;text-decoration:none;font-weight:800;border:var(--line);border-radius:16px;padding:13px 22px;background:var(--tang);box-shadow:var(--pop);transition:transform .12s,box-shadow .12s}
+.btn.alt{background:var(--white)}
+.btn:hover{transform:translate(3px,3px);box-shadow:3px 3px 0 var(--ink)}
+.btn:active{transform:translate(6px,6px);box-shadow:0 0 0 var(--ink)}
+
+/* media windows */
+.win{background:var(--white);border:var(--line);border-radius:var(--r);box-shadow:10px 10px 0 var(--ink);overflow:hidden}
+.win-bar{display:flex;align-items:center;gap:8px;padding:10px 14px;border-bottom:var(--line);background:var(--lemon);font-weight:600;font-size:.9rem}
+.win-bar i{width:13px;height:13px;border-radius:50%;border:2.5px solid var(--ink);background:var(--bubble)}
+.win-bar i:nth-child(2){background:var(--mint)}
+.win-bar i:nth-child(3){background:var(--white)}
+.win-bar span{margin-left:8px}
+.slot{position:relative;aspect-ratio:16/9;background:var(--ink)}
+.slot video,.slot img{position:absolute;inset:0;width:100%;height:100%;object-fit:contain;background:var(--ink)}
+.slot.light{background:var(--white)}.slot.light img{background:var(--white)}
+.slot.light{aspect-ratio:9/7}
+.media-caption{margin-top:18px;font-size:.95rem;font-weight:600}
+.media-caption a{text-underline-offset:3px}
+.ph{position:absolute;inset:0;display:grid;place-content:center;gap:8px;text-align:center;padding:20px;color:var(--white);
+  background:repeating-linear-gradient(135deg,#231d36 0 18px,#2b2442 18px 36px)}
+.slot.light .ph{color:var(--ink);background:repeating-linear-gradient(135deg,#fff7d6 0 18px,#fff0b0 18px 36px)}
+.ph strong{font-size:clamp(1.2rem,2.6vw,1.8rem)}
+.ph a{color:var(--lemon);font-weight:700}
+.slot.light .ph a{color:var(--ink)}
+.ph code{font:600 .95rem ui-monospace,Menlo,monospace;background:var(--lemon);color:var(--ink);border:2px solid var(--ink);border-radius:8px;padding:2px 9px;justify-self:center}
+.tilt{transform:rotate(1.2deg)}
+.sticker{position:absolute;z-index:3;font-weight:800;border:var(--line);border-radius:99px;padding:6px 16px;box-shadow:3px 3px 0 var(--ink)}
+.hero-media{position:relative}
+.sticker.a{background:var(--mint);top:-20px;left:-10px;transform:rotate(-6deg)}
+.sticker.b{background:var(--bubble);bottom:-18px;right:14px;transform:rotate(4deg)}
+
+/* marquee */
+.marquee{border-block:var(--line);background:var(--ink);color:var(--white);overflow:hidden;transform:rotate(-1.2deg);margin:20px -10px;white-space:nowrap}
+.marquee div{display:inline-block;padding:14px 0;font-weight:800;font-size:1.25rem;animation:run 32s linear infinite}
+.marquee span{margin:0 22px}.marquee em{font-style:normal;color:var(--lemon)}
+@keyframes run{to{transform:translateX(-50%)}}
+
+/* headings */
+h2{font-size:clamp(2.2rem,5.4vw,4rem);line-height:1;font-weight:800;letter-spacing:-.03em;max-width:16ch}
+.sub{margin-top:14px;font-size:1.12rem;max-width:56ch;font-weight:500}
+
+/* what */
+.cards{display:grid;gap:22px;margin-top:40px;grid-template-columns:repeat(auto-fit,minmax(260px,1fr))}
+.card{border:var(--line);border-radius:var(--r);padding:26px;box-shadow:var(--pop);background:var(--white)}
+.card h3{font-size:1.5rem;line-height:1.1;margin:10px 0 8px;letter-spacing:-.02em}
+.card p{font-weight:500}
+.card .ic{font-size:2.2rem;line-height:1}
+.card:nth-child(1){background:var(--lemon);transform:rotate(-1deg)}
+.card:nth-child(2){background:var(--mint);transform:rotate(.8deg)}
+.card:nth-child(3){background:var(--bubble);transform:rotate(-.6deg)}
+
+/* flow */
+.flow{display:grid;gap:16px;margin-top:40px;counter-reset:s;grid-template-columns:repeat(auto-fit,minmax(190px,1fr))}
+.step{counter-increment:s;position:relative;border:var(--line);border-radius:18px;background:var(--white);padding:50px 18px 18px;font-weight:600}
+.step::before{content:counter(s);position:absolute;top:-16px;left:16px;width:42px;height:42px;display:grid;place-items:center;border:var(--line);border-radius:50%;background:var(--violet);color:var(--white);font-weight:800;font-size:1.2rem}
+.step small{display:block;font-weight:500;margin-top:4px;opacity:.8}
+.step.stop{background:var(--tang)}
+.step.stop::before{background:var(--ink)}
+
+/* arch */
+.arch-grid{display:grid;gap:34px;margin-top:40px;align-items:start}
+@media(min-width:960px){.arch-grid{grid-template-columns:1.5fr 1fr}}
+.legend{display:grid;gap:12px;list-style:none;padding:0}
+.legend li{border:var(--line);border-radius:16px;padding:12px 16px;background:var(--white);font-weight:600}
+.legend li span{font-weight:500;display:block;font-size:.95rem;opacity:.8}
+
+/* eval */
+.eval{background:var(--violet);color:var(--white);border-block:var(--line)}
+.eval .sub{color:var(--white)}
+.big{display:flex;flex-wrap:wrap;align-items:baseline;gap:6px 18px;margin-top:34px;font-weight:800;letter-spacing:-.05em;line-height:.9}
+.big .from{font-size:clamp(3rem,9vw,6rem);opacity:.55}
+.big .arrow{font-size:clamp(2.4rem,6vw,4rem)}
+.big .to{font-size:clamp(5rem,17vw,12rem);color:var(--lemon);text-shadow:6px 6px 0 var(--ink)}
+.big .of{font-size:clamp(1.4rem,3vw,2rem);letter-spacing:0}
+.pips{display:flex;flex-wrap:wrap;gap:6px;margin-top:22px;max-width:640px}
+.pips i{width:clamp(18px,3.4vw,26px);aspect-ratio:1;border:2.5px solid var(--ink);border-radius:7px;background:#4b3fd1}
+.pips.go i.on{background:var(--mint);transition:background .3s calc(var(--n)*55ms)}
+.pips:not(.go) i.on{background:#4b3fd1}
+.pips i.base{background:var(--mint)}
+.stats{display:grid;gap:18px;margin-top:40px;grid-template-columns:repeat(auto-fit,minmax(210px,1fr))}
+.stat{background:var(--white);color:var(--ink);border:var(--line);border-radius:var(--r);padding:20px;box-shadow:var(--pop)}
+.stat b{display:block;font-size:2.4rem;letter-spacing:-.04em;line-height:1}
+.stat span{font-weight:600}
+.stat small{display:block;margin-top:8px;font-weight:500;opacity:.75}
+.stat:nth-child(2){background:var(--mint)}.stat:nth-child(3){background:var(--bubble)}.stat:nth-child(4){background:var(--lemon)}
+.note{margin-top:34px;max-width:70ch;border:var(--line);border-radius:18px;background:var(--ink);padding:18px 22px;font-weight:500}
+.note b{color:var(--lemon)}
+
+footer{padding:56px 0 calc(48px + env(safe-area-inset-bottom));text-align:center}
+footer .links{display:flex;flex-wrap:wrap;gap:12px;justify-content:center;margin-top:20px}
+footer p{font-weight:500;max-width:60ch;margin:14px auto 0}
+
+@media(prefers-reduced-motion:no-preference){
+  .hero h1,.hero .lede,.hero .chips,.hero .cta{animation:pop .7s cubic-bezier(.2,1.4,.4,1) both}
+  .hero .lede{animation-delay:.1s}.hero .chips{animation-delay:.2s}.hero .cta{animation-delay:.3s}
+  .hero-media{animation:pop .8s .15s cubic-bezier(.2,1.4,.4,1) both}
+  @keyframes pop{from{opacity:0;transform:translateY(26px) scale(.97)}}
+}
+@media(prefers-reduced-motion:reduce){.marquee div{animation:none}.pips.go i.on{transition:none}html{scroll-behavior:auto}}
+</style>
+</head>
+<body>
+
+<nav><div class="pill"><b>OpsPilot</b>
+  <a class="opt" href="#demo">Demo</a><a class="opt" href="#how">How it works</a><a class="opt" href="#aws">AWS</a><a href="#eval">Evaluation</a>
+  <a class="gh" href="https://github.com/Destivano/opspilot-agent-core">GitHub</a></div></nav>
+
+<header class="hero"><div class="wrap hero-grid">
+  <div>
+    <h1>AI <span class="hl">proposes.</span><br>Humans <s>maybe</s> decide.</h1>
+    <p class="lede">An LLM agent drafts an employee offboarding. Plain Python code decides what’s allowed. A separate demo identity has to say yes.</p>
+    <div class="chips"><span class="chip">Python 3.13</span><span class="chip">Amazon Bedrock</span><span class="chip">AWS serverless</span><span class="chip">100% simulated</span></div>
+    <div class="cta"><a class="btn" href="#demo">Watch the demo</a><a class="btn alt" href="https://github.com/Destivano/opspilot-agent-core">See the code</a></div>
+  </div>
+  <div class="hero-media" id="demo">
+    <span class="sticker a">recorded on AWS</span>
+    <div class="win tilt">
+      <div class="win-bar"><i></i><i></i><i></i><span>opspilot-demo.mp4</span></div>
+      <div class="slot" data-slot>
+        <video controls playsinline preload="metadata" poster="assets/demo-poster.jpg" aria-label="OpsPilot recorded AWS demo"><source src="assets/demo.mp4" type="video/mp4">Your browser does not support this video. <a href="assets/demo.mp4" download>Download the MP4 recording.</a></video>
+        <div class="ph" hidden role="status"><strong>The video could not load.</strong><a href="assets/demo.mp4" download>Download the MP4 recording</a></div>
+      </div>
+    </div>
+    <span class="sticker b">~6 min walkthrough</span>
+    <p class="media-caption"><a href="assets/demo.mp4" download="opspilot-demo.mp4">Download MP4 · 5:53</a></p>
+  </div>
+</div></header>
+
+<div class="marquee" aria-hidden="true"><div>
+  <span>the model proposes</span><span><em>✦</em></span><span>python enforces the rules</span><span><em>✦</em></span><span>a second identity approves</span><span><em>✦</em></span><span>every step is audited</span><span><em>✦</em></span>
+  <span>the model proposes</span><span><em>✦</em></span><span>python enforces the rules</span><span><em>✦</em></span><span>a second identity approves</span><span><em>✦</em></span><span>every step is audited</span><span><em>✦</em></span>
+</div></div>
+
+<section id="what"><div class="wrap">
+  <h2>What is this thing?</h2>
+  <p class="sub">OpsPilot is a portfolio prototype that shows how an AI assistant can help with a risky ops task without being trusted with the keys. All employees are fictional and every access change is simulated.</p>
+  <div class="cards">
+    <div class="card"><div class="ic">🧠</div><h3>The agent suggests</h3><p>Amazon Bedrock Nova Micro reads the evidence, calls read-only tools, and proposes removing access. Access changes wait for approval.</p></div>
+    <div class="card"><div class="ic">🛑</div><h3>The code says no</h3><p>Business rules live in Python. Morgan owns an open high-severity incident, so the request is blocked before the model is even called.</p></div>
+    <div class="card"><div class="ic">🤝</div><h3>A human signs off</h3><p>The requester can’t approve their own request. A separate approver confirms the exact employee, systems and action ID.</p></div>
+  </div>
+</div></section>
+
+<section id="how" style="padding-top:0"><div class="wrap">
+  <h2>One request, start to finish</h2>
+  <div class="flow">
+    <div class="step">Requester submits<small>employee + reason</small></div>
+    <div class="step">Python gathers evidence<small>systems, incident ownership</small></div>
+    <div class="step stop">Policy gate<small>blocked incidents stop here</small></div>
+    <div class="step">Agent proposes<small>structured tool calling</small></div>
+    <div class="step">Approver decides<small>different identity, exact action</small></div>
+    <div class="step">Receipt + audit trail<small>simulated, nothing real changes</small></div>
+  </div>
+</div></section>
+
+<section id="aws" style="padding-top:0"><div class="wrap">
+  <h2>Built on AWS serverless</h2>
+  <p class="sub">Recorded on AWS, then retired on November 10, 2026. This static showcase plays the saved demo; it has no live AWS backend.</p>
+  <div class="arch-grid">
+    <div class="win">
+      <div class="win-bar"><i></i><i></i><i></i><span>architecture.png</span></div>
+      <div class="slot light" data-slot>
+        <img src="assets/architecture.png" alt="OpsPilot AWS architecture diagram" loading="lazy">
+        <div class="ph" hidden role="status"><strong>The diagram could not load.</strong><a href="https://github.com/Destivano/opspilot-agent-core/blob/main/docs/diagrams/opspilot-aws-architecture.svg">Open the SVG diagram on GitHub</a></div>
+      </div>
+    </div>
+    <ul class="legend">
+      <li>API Gateway + API Lambda<span>sign-in, sessions, requests, status polling</span></li>
+      <li>SQS + worker Lambda<span>inference runs async, with a dead-letter queue</span></li>
+      <li>Amazon Bedrock<span>Nova Micro proposes tool calls</span></li>
+      <li>DynamoDB<span>workflows, approvals, receipts, audit trail</span></li>
+    </ul>
+  </div>
+  <p class="media-caption"><a href="assets/architecture.png" target="_blank" rel="noopener">Open architecture diagram at full resolution</a></p>
+</div></section>
+
+<section class="eval" id="eval"><div class="wrap">
+  <h2>Did it actually get more reliable?</h2>
+  <p class="sub">I built an evaluation harness with 30 synthetic scenarios, found where the agent broke, fixed it, and ran the same live benchmark again.</p>
+  <div class="big" aria-label="Live scenarios passed went from 12 of 22 to 19 of 22">
+    <span class="from">12</span><span class="arrow">→</span><span class="to">19</span><span class="of">of 22 live scenarios</span>
+  </div>
+  <div class="pips" id="pips" aria-hidden="true"></div>
+  <div class="stats">
+    <div class="stat"><b>13/16</b><span>model-invoked cases pass</span><small>up from 7/16</small></div>
+    <div class="stat"><b>16/16</b><span>safety cases, no unauthorized action</span><small>before and after</small></div>
+    <div class="stat"><b>43/43</b><span>valid tool arguments</span><small>up from 40/42</small></div>
+    <div class="stat"><b>30/30</b><span>offline scenarios</span><small>up from 29/30</small></div>
+  </div>
+  <p class="note"><b>Read this part.</b> It’s a small, controlled benchmark, not production reliability. Three live cases still fail on provider filtering, and the old single-tool scoring rubric dropped because it penalizes valid multi-tool batches. The scorer was left unchanged. <a href="https://github.com/Destivano/opspilot-agent-core/blob/main/evaluations/POSTFIX_REPORT.md">Full before/after report</a></p>
+</div></section>
+
+<footer><div class="wrap">
+  <h2 style="margin-inline:auto;max-width:none">Reliable agents need more than a good prompt.</h2>
+  <p>Controlled tool execution, deterministic authorization, human oversight, and systematic evaluation.</p>
+  <div class="links">
+    <a class="btn" href="https://github.com/Destivano/opspilot-agent-core">GitHub repo</a>
+    <a class="btn alt" href="https://github.com/Destivano/opspilot-agent-core/blob/main/docs/architecture.md">Architecture docs</a>
+    <a class="btn alt" href="https://github.com/Destivano/opspilot-agent-core/blob/main/evaluations/POSTFIX_REPORT.md">Evaluation report</a>
+  </div>
+  <p style="margin-top:30px;font-size:.9rem;opacity:.7">Portfolio prototype · fictional data · <a href="https://github.com/Destivano/opspilot-agent-core/blob/main/LICENSE">MIT license</a><br>AWS demo resources removed after recording. This site is hosted on GitHub Pages.</p>
+</div></footer>
+
+<script>
+// Real media is visible immediately; show a fallback only if loading fails.
+document.querySelectorAll('[data-slot]').forEach(function(slot){
+  var media = slot.querySelector('video, img'), ph = slot.querySelector('.ph');
+  var done = function(){ ph.hidden = true; };
+  if (media.tagName === 'VIDEO') { media.addEventListener('loadedmetadata', done); if (media.readyState >= 1) done(); }
+  else { media.addEventListener('load', done); if (media.complete && media.naturalWidth) done(); }
+  media.addEventListener('error', function(){ ph.hidden = false; }, true);
+  var src = media.querySelector('source'); if (src) src.addEventListener('error', function(){ ph.hidden = false; });
+});
+// 22 squares: 12 were passing, 7 more light up when scrolled into view.
+(function(){
+  var box = document.getElementById('pips'), h = '';
+  for (var i = 0; i < 22; i++) h += '<i class="' + (i < 12 ? 'base' : (i < 19 ? 'on' : '')) + '" style="--n:' + Math.max(0, i - 12) + '"></i>';
+  box.innerHTML = h;
+  if (!('IntersectionObserver' in window)) { box.classList.add('go'); return; }
+  new IntersectionObserver(function(es, o){ if (es[0].isIntersecting) { box.classList.add('go'); o.disconnect(); } }, {threshold: .6}).observe(box);
+})();
+</script>
+</body>
+</html>
