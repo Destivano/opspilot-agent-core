@@ -11,6 +11,12 @@
 **[Watch or download the OpsPilot demo](docs/videos/opspilot-demo.mp4)** — 5 minutes
 53 seconds, MP4, approximately 18 MB.
 
+![OpsPilot AWS architecture showing API Gateway, Lambda, SQS, DynamoDB, Bedrock and supporting services](docs/diagrams/opspilot-aws-architecture.png)
+
+[Editable SVG](docs/diagrams/opspilot-aws-architecture.svg) ·
+[PDF](docs/diagrams/opspilot-aws-architecture.pdf) ·
+[Diagram source](scripts/build_architecture_diagram.py)
+
 The AWS demo was deployed for testing and recording, then retired on November 10, 2026.
 Its application resources and SAM deployment bucket have been removed. The recording,
 source code and evaluation results remain available here; use the
