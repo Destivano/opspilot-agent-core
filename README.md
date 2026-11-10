@@ -8,7 +8,7 @@
 
 ## Demo video
 
-**[Watch or download the OpsPilot demo](docs/videos/opspilot-demo.mp4)** — 5 minutes
+**[Download the OpsPilot demo (MP4)](https://raw.githubusercontent.com/Destivano/opspilot-agent-core/main/docs/videos/opspilot-demo.mp4)** — 5 minutes
 53 seconds, MP4, approximately 18 MB.
 
 ![OpsPilot AWS architecture showing API Gateway, Lambda, SQS, DynamoDB, Bedrock and supporting services](docs/diagrams/opspilot-aws-architecture.png)
@@ -16,6 +16,9 @@
 [Editable SVG](docs/diagrams/opspilot-aws-architecture.svg) ·
 [PDF](docs/diagrams/opspilot-aws-architecture.pdf) ·
 [Diagram source](scripts/build_architecture_diagram.py)
+
+Open the downloaded file in your video player. GitHub's repository file viewer does not
+preview this recording; the link above downloads the video directly.
 
 The AWS demo was deployed for testing and recording, then retired on November 10, 2026.
 Its application resources and SAM deployment bucket have been removed. The recording,

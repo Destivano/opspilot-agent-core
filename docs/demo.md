@@ -2,7 +2,9 @@
 
 ## Recorded demo
 
-[Watch or download the demo video](videos/opspilot-demo.mp4) (5:53, MP4, approximately 18 MB).
+[Download the demo video directly](https://raw.githubusercontent.com/Destivano/opspilot-agent-core/main/docs/videos/opspilot-demo.mp4)
+(5:53, MP4, approximately 18 MB), then open it in a video player. This link bypasses
+GitHub's repository file viewer, which cannot preview the recording.
 The AWS environment used for the demo was retired on November 10, 2026. The walkthrough
 below remains available for the local simulation or a new SAM deployment.
 
