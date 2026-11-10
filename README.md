@@ -111,7 +111,8 @@ proposal must appear alone and still needs exact-scope validation and separate a
 Initial evidence and fresh read results are checked for complete, consistent records.
 Requests naming specific read tools require those checks in orchestration; ordinary
 requests reuse initial evidence. Provider filtering produces an explained block without
-automatic retry. These source improvements require a future deployment to update AWS.
+automatic retry. The maintainer confirmed deployment of these reliability fixes to
+the existing AWS demo stack on November 10, 2026.
 
 ## Demonstration scenarios
 
@@ -227,7 +228,8 @@ Read the [before/after report](evaluations/POSTFIX_REPORT.md),
 [offline artifacts](evaluations/results/offline-baseline/report.md), and
 [live baseline artifacts](evaluations/results/live-baseline/report.md). The original
 dataset, scorer, results and production-demo fixtures remain unchanged. Updated run
-artifacts are linked from the comparison report; the application was not redeployed.
+artifacts are linked from the comparison report. The evaluation itself made no deployment
+changes; the maintainer subsequently deployed the fixes to the existing demo stack.
 
 ## Deploy to AWS
 
@@ -275,8 +277,8 @@ template.yaml         SAM infrastructure
 
 Not yet implemented: conversational requests, onboarding, IT troubleshooting, tickets,
 RAG or cited document answers, MCP, mutable simulated enterprise APIs, React/TypeScript/Vite,
-improved-agent comparisons, or cost/time-savings dashboards. The evaluation above is a
-measured baseline, not proof of production reliability. GitHub Actions currently validates the code;
+or cost/time-savings dashboards. The evaluation above includes a measured before/after
+comparison; it does not establish production reliability. GitHub Actions currently validates the code;
 it does not deploy the application automatically.
 
 ## Planned lifecycle, not current functionality

@@ -16,12 +16,12 @@ to a private password of 12–128 characters with no spaces. There is no default
 Do not send it to chat or commit it. If SAM saves parameters, keep the resulting
 `samconfig.toml` private; this repository ignores it.
 
-Review the change set. **Upgrading from the previous version removes the Cognito user pool,
+Review the change set. **If migrating from the historical Cognito-based version, the update removes the Cognito user pool,
 its client, its groups and any accounts in that pool.** It also removes the JWT authorizer.
 Session authentication is now enforced inside the API Lambda. Keep the existing stack;
 do not delete/recreate it to upgrade.
 
-The workflow table and dashboard API remain. Old Cognito-owned requests are visible to the
+The workflow table and dashboard API remain. Any retained Cognito-owned requests are visible to the
 demo approver, but their ownership is not reassigned to the new requester. Create new requests
 for the demo. Existing local-only prototype rows outside the document schema are not migrated.
 
@@ -89,11 +89,17 @@ queue delivery in your deployed account.
 | Request remains queued | Worker trigger, queue messages and logs; use Resume to retry delivery |
 | Request says still processing | Wait for its 150-second lease to expire |
 | Model failure | Worker CloudWatch logs, regional model access and Bedrock IAM permissions |
+| Provider-filter block | Inspect `model_stop_reason` and `error_kind=provider_filter`; review before creating a new request; Resume is not available |
+| Incomplete evidence block | Correct missing/invalid fixture or source fields, then create a new request |
 | No action proposed | Create a new request with a clearer offboarding reason |
 | Three attempts exhausted | Inspect the audit trail before creating a replacement request |
 
 Local preview access/application logs are in `.local-demo.log`; HTTP handling does not write to
 the Windows terminal. Restart the local server after updating its Python source.
+
+Rebuilding/redeploying preserves existing workflow history. A separate maintenance action
+can remove old request records without deleting accounts or sessions; refresh the dashboard
+afterward. History cleanup alone requires no SAM build or deployment.
 
 ## Costs and cleanup
 

@@ -67,11 +67,12 @@ sequenceDiagram
     Q->>W: Deliver workflow ID
     W->>DB: Read workflow and conditionally claim lease
     Note over W: Read fixtures and enforce policy in Python
+    Note over W: Enforce explicitly named read checks and record actual results
     W->>M: Task, evidence, conversation and tool schemas
     loop Optional read-tool turns within planning budget
-        M-->>W: Read-tool request
-        Note over W: Execute selected employee read tool
-        W->>M: Conversation with toolResult
+        M-->>W: One to three distinct read-tool requests
+        Note over W: Validate whole batch, execute selected employee reads
+        W->>M: One user message with matching toolResult blocks
     end
     M-->>W: Access-removal toolUse proposal
     W->>DB: Save exact pending action and awaiting_approval
@@ -101,8 +102,16 @@ are described in [the workflow guide](workflow.md).
 
 During planning, the worker sends its system instructions, the selected employee ID, business
 reason, pre-collected employee/asset/incident evidence, accumulated model/tool messages, and
-the four JSON tool schemas. Each successful read-tool request adds a tool result to the next
-model call. A pending mutation is not executed in this loop.
+the four JSON tool schemas. When the request names allowlisted verification tools, the
+worker executes those checks before inference and includes their actual results separately.
+Each model-selected read batch adds one user message containing the matching results to the
+next model call. The worker validates tool arguments and evidence schemas, then reapplies
+business policy to fresh evidence. A pending mutation is not executed in this loop.
+
+Mixed read/mutation batches and multiple actions stop before any handler runs. Provider
+filtering saves the actual stop reason and an explained block without a proposal or automatic
+retry. Other abnormal stop reasons produce controlled failures. These outcomes appear in
+workflow traces and structured log fields; they do not grant authorization.
 
 After approval and receipt persistence, a separate summary request sends the receipt, including
 the employee ID, simulated systems, reason, action ID and execution ID. It does not resume the
@@ -116,8 +125,10 @@ original tool conversation or allow another mutation. No document retrieval or R
 | Workflows | DynamoDB rows keyed by `workflow_id` | Persist until explicit deletion or stack teardown; no workflow TTL |
 | Internal model conversation | `messages` in the workflow JSON document | Checkpointed with workflow progress; hidden from the public API view |
 | Proposal and approval | `pending_action`, `decision`, `approved_by`, trace | Stored with workflow; identifies exact approved action and demo actor |
+| Enforced verification | `verification_results` and verification trace events | Actual named read checks, distinguished from model-selected calls |
 | Simulated execution result | `action_result` in workflow document | Saved before optional AI summary |
 | Status, errors and audit entries | Workflow document | Returned in public views; contains events, not private chain-of-thought |
+| Model outcome classification | `model_stop_reason`, `error_kind`, trace | Separates provider-filter blocks, invalid proposals and other controlled outcomes |
 | Write version and worker lease | Workflow metadata | Used for concurrency/recovery; omitted from public views |
 | Session | Same DynamoDB table; `session-` plus token hash | 15-minute access lifetime; logout deletion and TTL cleanup |
 | Login attempt counter | Same table; `login-` plus hashed IP and minute | Counter per time window; TTL cleanup after its usefulness ends |
@@ -159,6 +170,12 @@ server, which is outside the deployed `src/` directory. Records vanish when the 
 ## Data that does not exist yet
 
 There are no stored company documents, embeddings, retrieval results, cited sources, persistent
-employee access changes, support tickets, evaluation runs or business-impact measurements.
+employee access changes, support tickets or business-impact measurements.
 S3 artifacts used by SAM for deployment are not a knowledge base. Those future platform data
 flows will need separate design and implementation.
+
+Evaluation runs do exist as local/repository artifacts under `evaluations/results/`. The
+offline runner uses scripted model responses; live runs send isolated synthetic task/evidence
+data to Bedrock. Both use in-memory workflow storage and local JSON reports instead of the
+deployed DynamoDB table and SQS queue. The original baseline and post-fix runs are preserved
+for the [before/after comparison](../evaluations/POSTFIX_REPORT.md).

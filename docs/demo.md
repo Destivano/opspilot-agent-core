@@ -22,8 +22,16 @@ outside the SAM `CodeUri`. Deployed code does not accept local preview tokens.
 Use the same steps with `casey.requester` and `alex.approver`, using the shared demo password
 you chose during deployment. Roles are assigned by the server; no account setup is required.
 The actual model may choose different read tools or return a review without a proposal;
-the backend still enforces the same business rules and approval boundary. Model failures are
-visible as `failed`; inspect the worker logs and use Resume after fixing the cause.
+the backend still enforces the same business rules and approval boundary. Valid read batches
+can contain up to three tools; the audit trail shows which reads actually executed.
+Provider-filtered responses produce an explained `blocked` outcome and cannot be resumed;
+review the request before creating a new one. Other failures may show `failed`; inspect
+the error and worker logs and use Resume only for an eligible, recoverable failure.
+
+The maintainer confirmed deploying the reliability fixes on November 10, 2026. Saved AWS
+requests persist across builds/deployments. Removing old workflow records is a separate
+maintenance action; after removal, refresh the dashboard to start with an empty queue.
+Deleting history does not require `sam build` or `sam deploy`.
 
 ## API demonstration
 
@@ -49,6 +57,8 @@ Capture a short recording or screenshots showing:
 - The incident block and its resolution guidance.
 - A simulation receipt with actor/timestamp trace.
 - A passing CI run.
+- The [before/after evaluation](../evaluations/POSTFIX_REPORT.md): 29/30 to 30/30 offline
+  passes and 12/22 to 19/22 live passes, with remaining filter failures disclosed.
 
 Explain which tests demonstrate a control, rather than claiming unmeasured production impact.
 Only use the fictional fixtures. Do not publish tokens, identifiers from real users,

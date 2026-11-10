@@ -40,7 +40,8 @@ failed / expired running → queued
 failed / expired executing → queued_execution
 ```
 
-Terminal workflows cannot be reopened. Resolve policy conditions and start a new request.
+Completed, reviewed, rejected and blocked workflows cannot be reopened. Resolve policy
+conditions and start a new request; failed/interrupted work has the bounded Resume path below.
 The code permits only one access-change proposal per workflow. Decisions bind to a stable
 action hash including workflow identity and the full proposed input. Duplicate matching decisions
 return the saved state; opposing decisions and stale action IDs are rejected.
@@ -57,6 +58,22 @@ The model can call read tools for the selected employee and propose a mutation. 
 the mutation through the general tool dispatcher. An answer without a proposal produces `reviewed`,
 not a false offboarding completion. Each workflow has a six-turn planning budget; retries do not
 reset already saved turns. User and model strings render as escaped text in the UI.
+
+Each model response may contain up to three distinct read tools. All names, exact
+selected-employee arguments and unique IDs are validated before any handler executes.
+Results are grouped into one user message with matching tool IDs. Mixed read/mutation
+batches and multiple actions are rejected without partial execution. Individual read errors
+are recorded as correlated error results and stop planning. Mutation proposals must appear
+alone and retain the exact-action approval path.
+
+Evidence schemas are validated before policy/inference and again on fresh read results;
+missing security fields produce an explicit block. Requests naming allowlisted read tools
+require those checks in orchestration, with actual results traced separately from model calls.
+Provider filtering creates an explained, terminal block without automatic retry. Truncation,
+malformed responses, context limits and unknown stop reasons produce controlled failures.
+The [evaluation comparison](../evaluations/POSTFIX_REPORT.md) measures the changes against
+preserved original results, including remaining provider-filter failures and the limitations
+of the frozen single-tool selection rubric.
 
 ## Persistence, retries, and side effects
 

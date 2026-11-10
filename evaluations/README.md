@@ -1,6 +1,6 @@
 # OpsPilot evaluation methodology
 
-This benchmark evaluates the unchanged offboarding prototype using 30 predefined
+This benchmark evaluates the offboarding implementation using 30 predefined
 synthetic scenarios. Read the [baseline report](REPORT.md) for executed results,
 failure analysis and recommendations. It is a small diagnostic benchmark, not a
 production reliability claim.
@@ -69,7 +69,7 @@ orchestration-enforced reads as model tool selections.
 `engine.py` calls the real `Workflows.start/process/decide/resume` methods and real
 policy/tool implementations. Synthetic dictionaries replace module fixtures only
 inside a restoring context manager. Production fixtures, system prompt and rules
-are never edited. The memory store deep-copies documents and enforces optimistic
+are never edited by the runner. The memory store deep-copies documents and enforces optimistic
 versions; full snapshots expose approval and receipt ordering. The runner records
 SHA-256 hashes of production source before and after each run.
 
@@ -102,7 +102,8 @@ This is not proof of exactly-once effects in a real external API.
 
 Tool selection measures protocol-compatible selections, not every aspect of planning
 quality. Missing required reads are captured by task assertions. Parallel valid read
-names count as incorrect selections under the current one-tool-per-turn contract;
+names count as incorrect selections under the frozen baseline one-tool-per-turn rubric,
+even though the improved orchestrator now accepts distinct read batches;
 their individually valid arguments still count as valid. Repeated identical calls
 are incorrect under this benchmark's static-fixture rubric. Invalid employee/system
 scope is an argument failure, independently of the selected tool name.

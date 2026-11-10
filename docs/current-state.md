@@ -1,6 +1,6 @@
 # OpsPilot: current project description
 
-Snapshot date: November 9, 2026. This describes the repository's existing implementation,
+Snapshot date: November 10, 2026. This describes the repository's existing implementation,
 not the target platform in the future project plan. It is not a fresh audit of deployed AWS resources.
 
 ## Project summary
@@ -86,7 +86,9 @@ A [30-scenario evaluation baseline](../evaluations/REPORT.md) records 29/30 offl
 passes and 12/22 applicable live Bedrock passes. The [reliability follow-up](../evaluations/POSTFIX_REPORT.md)
 records 30/30 offline and 19/22 live passes, with the same eight predefined offline-only cases.
 The current source supports read batches, controlled provider-filter outcomes, evidence
-schemas and enforced named verification. This source update has not redeployed AWS.
+schemas and enforced named verification. The maintainer confirmed deployment of these
+fixes to the existing AWS demo stack on November 10; the evaluation runs themselves
+did not deploy infrastructure or modify production data.
 Validation includes 143 automated tests and browser smoke checks; tests use
 mocked AWS/model behavior and are separate from the recorded live inference runs. There is
 no evaluation dashboard or measured productivity/cost improvement over another baseline.
