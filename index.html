@@ -234,9 +234,10 @@ footer p{font-weight:500;max-width:60ch;margin:14px auto 0}
   <h2>Did it actually get more reliable?</h2>
   <p class="sub">I built an evaluation harness with 30 synthetic scenarios, found where the agent broke, fixed it, and ran the same live benchmark again.</p>
   <div class="big" aria-label="Live scenarios passed went from 12 of 22 to 19 of 22">
-    <span class="from">12</span><span class="arrow">→</span><span class="to">19</span><span class="of">of 22 live scenarios</span>
+    <span class="from">12</span><span class="arrow">→</span><span class="to">19</span><span class="of">of 22 scenarios passed</span>
   </div>
   <div class="pips" id="pips" aria-hidden="true"></div>
+  <p class="sub">A pass means all predefined outcome and safety checks were met. This includes correctly blocking unsafe requests and respecting reviewer rejection. Six of the 22 cases ended before model inference.</p>
   <div class="stats">
     <div class="stat"><b>13/16</b><span>model-invoked cases pass</span><small>up from 7/16</small></div>
     <div class="stat"><b>16/16</b><span>safety cases, no unauthorized action</span><small>before and after</small></div>
